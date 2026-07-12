@@ -1,13 +1,249 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>x99design-website</title>
-  </head>
-  <body>
-    <div id="app"></div>
-    <script type="module" src="/src/main.js"></script>
-  </body>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>x99design • Hybrid Tube Chassis</title>
+  
+  <!-- Satoshi Font -->
+  <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS -->
+  <link rel="stylesheet" href="/src/style.css">
+</head>
+<body class="bg-deep-navy text-brushed-silver font-sans">
+
+  <!-- Navigation -->
+  <nav class="border-b border-borders bg-deep-navy/95 backdrop-blur-md sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-6 py-5 flex items-center justify-between">
+      <div class="flex items-center gap-x-3">
+        <img src="/images/logo.png" alt="x99design" class="h-9 w-auto">
+        <span class="text-2xl font-display font-semibold tracking-tight">x99design</span>
+      </div>
+
+      <div class="flex items-center gap-x-8 text-sm">
+        <a href="#viewer" class="hover:text-electric-cyan transition-colors">STL Viewer</a>
+        <a href="#specs" class="hover:text-electric-cyan transition-colors">Specs</a>
+        <a href="#builds" class="hover:text-electric-cyan transition-colors">Other Builds</a>
+        <a href="#contact" class="hover:text-electric-cyan transition-colors">Contact</a>
+        
+        <button onclick="document.getElementById('contact').scrollIntoView({ behavior: 'smooth' })" 
+                class="px-5 py-2.5 bg-electric-cyan text-deep-navy font-medium rounded-lg hover:bg-white transition-all">
+          Join Beta
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <header class="max-w-5xl mx-auto px-6 pt-16 pb-20 text-center">
+    <div class="inline-block px-4 py-1 rounded-full bg-card-background border border-borders text-sm mb-6">
+      360 mm • Hybrid Tube Chassis
+    </div>
+    
+    <h1 class="text-6xl md:text-7xl font-display font-semibold tracking-tighter leading-none">
+      Built for the<br>extreme.
+    </h1>
+    <p class="mt-6 text-xl text-brushed-silver/80 max-w-md mx-auto">
+      Precision-engineered hybrid tube chassis for serious rock crawling and Ultra4-style performance.
+    </p>
+
+    <div class="mt-10 flex justify-center gap-x-4">
+      <a href="#viewer" 
+         class="px-8 py-4 bg-electric-cyan text-deep-navy font-semibold rounded-xl hover:bg-white transition-all flex items-center gap-x-2">
+        Open STL Viewer
+      </a>
+      <a href="#specs" 
+         class="px-8 py-4 border border-borders hover:bg-card-background rounded-xl transition-all">
+        View Specifications
+      </a>
+    </div>
+  </header>
+
+  <!-- Interactive STL Viewer -->
+  <section id="viewer" class="max-w-6xl mx-auto px-6 pb-20">
+    <div class="flex items-end justify-between mb-6">
+      <div>
+        <h2 class="text-4xl font-display font-semibold tracking-tight">Interactive STL Viewer</h2>
+        <p class="text-brushed-silver/70 mt-2">Rotate, zoom, and inspect the hybrid tube chassis in 3D.</p>
+      </div>
+    </div>
+
+    <!-- Three.js STL Viewer Container -->
+    <div class="bg-card-background border border-borders rounded-3xl overflow-hidden">
+      <div id="stl-container" class="w-full h-[520px] relative bg-[#0A1428]">
+        <!-- Three.js canvas will be injected here -->
+      </div>
+      
+      <div class="p-4 border-t border-borders flex items-center justify-between text-sm">
+        <div class="text-brushed-silver/70">
+          Left-click + drag to rotate • Scroll to zoom • Right-click to pan
+        </div>
+        <button onclick="resetCamera()" 
+                class="px-4 py-2 bg-deep-navy border border-borders rounded-lg hover:bg-electric-cyan hover:text-deep-navy transition-all">
+          Reset View
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Key Specifications -->
+  <section id="specs" class="max-w-6xl mx-auto px-6 pb-20">
+    <h2 class="text-4xl font-display font-semibold tracking-tight mb-8">Key Specifications</h2>
+    
+    <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div class="bg-card-background border border-borders rounded-2xl p-6">
+        <div class="text-electric-cyan text-sm tracking-widest">WHEELBASE</div>
+        <div class="text-4xl font-semibold mt-2">360 mm</div>
+      </div>
+      <div class="bg-card-background border border-borders rounded-2xl p-6">
+        <div class="text-electric-cyan text-sm tracking-widest">TRACK WIDTH</div>
+        <div class="text-4xl font-semibold mt-2">276 mm</div>
+      </div>
+      <div class="bg-card-background border border-borders rounded-2xl p-6">
+        <div class="text-electric-cyan text-sm tracking-widest">GROUND CLEARANCE</div>
+        <div class="text-4xl font-semibold mt-2">76 mm</div>
+      </div>
+      <div class="bg-card-background border border-borders rounded-2xl p-6">
+        <div class="text-electric-cyan text-sm tracking-widest">CONSTRUCTION</div>
+        <div class="text-4xl font-semibold mt-2">Hybrid</div>
+        <div class="text-sm text-brushed-silver/70 mt-1">Aluminum/CF tubes + 3D printed nodes</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Other Builds -->
+  <section id="builds" class="max-w-6xl mx-auto px-6 pb-20">
+    <div class="flex items-end justify-between mb-8">
+      <h2 class="text-4xl font-display font-semibold tracking-tight">Other Designs</h2>
+      <a href="#" class="text-electric-cyan hover:underline">View full portfolio →</a>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div class="group">
+        <div class="aspect-video bg-card-background border border-borders rounded-2xl overflow-hidden">
+          <img src="/images/build-1.jpg" alt="Previous build 1" class="w-full h-full object-cover group-hover:scale-105 transition-transform">
+        </div>
+        <div class="mt-4">
+          <div class="font-medium">Project Alpha – 445 mm Ultra4</div>
+          <div class="text-sm text-brushed-silver/60">Full custom hybrid chassis</div>
+        </div>
+      </div>
+
+      <div class="group">
+        <div class="aspect-video bg-card-background border border-borders rounded-2xl overflow-hidden">
+          <img src="/images/build-2.jpg" alt="Previous build 2" class="w-full h-full object-cover group-hover:scale-105 transition-transform">
+        </div>
+        <div class="mt-4">
+          <div class="font-medium">SCX24 Custom – 240 mm</div>
+          <div class="text-sm text-brushed-silver/60">Compact rock crawler platform</div>
+        </div>
+      </div>
+
+      <div class="group">
+        <div class="aspect-video bg-card-background border border-borders rounded-2xl overflow-hidden">
+          <img src="/images/build-3.jpg" alt="Previous build 3" class="w-full h-full object-cover group-hover:scale-105 transition-transform">
+        </div>
+        <div class="mt-4">
+          <div class="font-medium">Slash 4x4 Long Travel</div>
+          <div class="text-sm text-brushed-silver/60">High-speed desert runner</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer id="contact" class="bg-footer border-t border-borders py-12">
+    <div class="max-w-6xl mx-auto px-6 text-center text-sm text-brushed-silver/60">
+      <p>© x99design — Precision RC Engineering</p>
+      <p class="mt-1">Suwanee, Georgia • Built for the rocks.</p>
+    </div>
+  </footer>
+
+  <!-- Three.js STL Viewer Script -->
+  <script type="module">
+    import * as THREE from 'three';
+    import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+    import { STLLoader } from 'three/examples/jsm/loaders/STLLoader.js';
+
+    const container = document.getElementById('stl-container');
+
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x0A1428);
+
+    const camera = new THREE.PerspectiveCamera(60, container.clientWidth / container.clientHeight, 0.1, 1000);
+    camera.position.set(0, 50, 120);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(container.clientWidth, container.clientHeight);
+    container.appendChild(renderer.domElement);
+
+    // Lights
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+    scene.add(ambientLight);
+
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+    directionalLight.position.set(50, 100, 50);
+    scene.add(directionalLight);
+
+    // Controls
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.1;
+
+    // Load STL
+    const loader = new STLLoader();
+    loader.load('/models/x99-chassis.stl', function (geometry) {
+      const material = new THREE.MeshPhongMaterial({ 
+        color: 0xE5E7EB, 
+        shininess: 25,
+        flatShading: false
+      });
+      
+      const mesh = new THREE.Mesh(geometry, material);
+      geometry.center();
+      scene.add(mesh);
+
+      // Auto position camera
+      const box = new THREE.Box3().setFromObject(mesh);
+      const size = box.getSize(new THREE.Vector3());
+      const center = box.getCenter(new THREE.Vector3());
+
+      camera.position.copy(center);
+      camera.position.z += size.length() * 1.4;
+      controls.target.copy(center);
+      controls.update();
+    });
+
+    function animate() {
+      requestAnimationFrame(animate);
+      controls.update();
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    // Resize handler
+    window.addEventListener('resize', () => {
+      camera.aspect = container.clientWidth / container.clientHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(container.clientWidth, container.clientHeight);
+    });
+
+    // Reset camera function
+    window.resetCamera = function () {
+      const meshes = scene.children.filter(c => c.type === 'Mesh');
+      if (meshes.length > 0) {
+        const box = new THREE.Box3().setFromObject(meshes[0]);
+        const center = box.getCenter(new THREE.Vector3());
+        const size = box.getSize(new THREE.Vector3());
+
+        camera.position.copy(center);
+        camera.position.z += size.length() * 1.4;
+        controls.target.copy(center);
+        controls.update();
+      }
+    };
+  </script>
+
+</body>
 </html>
