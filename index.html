@@ -10,6 +10,88 @@
   
   <!-- Tailwind CSS -->
   <link rel="stylesheet" href="/src/style.css">
+
+  <style>
+    .viewer-tab {
+      transition: all 0.2s ease;
+    }
+    .viewer-tab.active {
+      background-color: rgba(34, 211, 238, 0.15);
+      color: #22d3ee;
+      border-color: #22d3ee;
+    }
+    .viewer-panel {
+      display: none;
+    }
+    .viewer-panel.active {
+      display: block;
+    }
+
+    /* Loading progress styles */
+    #stl-loading {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: #0A1428;
+      z-index: 10;
+      transition: opacity 0.4s ease;
+    }
+    #stl-loading.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+    .progress-track {
+      width: 220px;
+      height: 4px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 999px;
+      overflow: hidden;
+      margin-top: 16px;
+    }
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: #22d3ee;
+      border-radius: 999px;
+      transition: width 0.15s ease;
+    }
+
+    /* 360 Photo View */
+    #photo360-container {
+      position: relative;
+      width: 100%;
+      height: 520px;
+      background: #0A1428;
+      overflow: hidden;
+      cursor: grab;
+      user-select: none;
+    }
+    #photo360-container:active {
+      cursor: grabbing;
+    }
+    #photo360-img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      pointer-events: none;
+      display: block;
+    }
+    #photo360-loading {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: #0A1428;
+      color: rgba(229,231,235,0.7);
+      font-size: 14px;
+      z-index: 5;
+    }
+  </style>
 </head>
 <body class="bg-deep-navy text-brushed-silver font-sans">
 
@@ -22,7 +104,7 @@
       </div>
 
       <div class="flex items-center gap-x-8 text-sm">
-        <a href="#viewer" class="hover:text-electric-cyan transition-colors">STL Viewer</a>
+        <a href="#viewer" class="hover:text-electric-cyan transition-colors">Viewer</a>
         <a href="#specs" class="hover:text-electric-cyan transition-colors">Specs</a>
         <a href="#builds" class="hover:text-electric-cyan transition-colors">Other Builds</a>
         <a href="#contact" class="hover:text-electric-cyan transition-colors">Contact</a>
@@ -51,7 +133,7 @@
     <div class="mt-10 flex justify-center gap-x-4">
       <a href="#viewer" 
          class="px-8 py-4 bg-electric-cyan text-deep-navy font-semibold rounded-xl hover:bg-white transition-all flex items-center gap-x-2">
-        Open STL Viewer
+        Open Viewer
       </a>
       <a href="#specs" 
          class="px-8 py-4 border border-borders hover:bg-card-background rounded-xl transition-all">
@@ -60,30 +142,83 @@
     </div>
   </header>
 
-  <!-- Interactive STL Viewer -->
+  <!-- Viewer Section with Tabs -->
   <section id="viewer" class="max-w-6xl mx-auto px-6 pb-20">
     <div class="flex items-end justify-between mb-6">
       <div>
-        <h2 class="text-4xl font-display font-semibold tracking-tight">Interactive STL Viewer</h2>
-        <p class="text-brushed-silver/70 mt-2">Rotate, zoom, and inspect the hybrid tube chassis in 3D.</p>
+        <h2 class="text-4xl font-display font-semibold tracking-tight">Interactive Viewer</h2>
+        <p class="text-brushed-silver/70 mt-2">Switch between photo spin and full 3D STL model.</p>
       </div>
     </div>
 
-    <!-- Three.js STL Viewer Container -->
     <div class="bg-card-background border border-borders rounded-3xl overflow-hidden">
-      <div id="stl-container" class="w-full h-[520px] relative bg-[#0A1428]">
-        <!-- Three.js canvas will be injected here -->
-      </div>
       
-      <div class="p-4 border-t border-borders flex items-center justify-between text-sm">
-        <div class="text-brushed-silver/70">
-          Left-click + drag to rotate • Scroll to zoom • Right-click to pan
-        </div>
-        <button onclick="resetCamera()" 
-                class="px-4 py-2 bg-deep-navy border border-borders rounded-lg hover:bg-electric-cyan hover:text-deep-navy transition-all">
-          Reset View
+      <!-- Tabs -->
+      <div class="flex border-b border-borders">
+        <button 
+          onclick="switchTab('360')" 
+          id="tab-360"
+          class="viewer-tab active flex-1 px-6 py-4 text-sm font-medium border-b-2 border-transparent hover:bg-white/5 transition-all">
+          360° Photo View
+        </button>
+        <button 
+          onclick="switchTab('stl')" 
+          id="tab-stl"
+          class="viewer-tab flex-1 px-6 py-4 text-sm font-medium border-b-2 border-transparent hover:bg-white/5 transition-all">
+          Interactive STL Viewer
         </button>
       </div>
+
+      <!-- 360° Photo View Panel -->
+      <div id="panel-360" class="viewer-panel active">
+        <div id="photo360-container">
+          <div id="photo360-loading">Loading frames…</div>
+          <img id="photo360-img" src="" alt="360° Chassis View" draggable="false">
+        </div>
+        
+        <div class="p-4 border-t border-borders flex items-center justify-between text-sm">
+          <div class="text-brushed-silver/70">
+            Drag left/right to spin • Scroll to change speed
+          </div>
+          <div class="flex gap-2">
+            <button id="photo360-play" 
+                    class="px-4 py-2 bg-deep-navy border border-borders rounded-lg hover:bg-electric-cyan hover:text-deep-navy transition-all">
+              Play
+            </button>
+            <button id="photo360-stop" 
+                    class="px-4 py-2 bg-deep-navy border border-borders rounded-lg hover:bg-electric-cyan hover:text-deep-navy transition-all">
+              Stop
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- STL Panel -->
+      <div id="panel-stl" class="viewer-panel">
+        <div id="stl-container" class="w-full h-[520px] relative bg-[#0A1428]">
+          
+          <!-- Loading Progress Overlay -->
+          <div id="stl-loading">
+            <div class="text-sm text-brushed-silver/80 tracking-wide">Loading 3D Model…</div>
+            <div class="progress-track">
+              <div id="stl-progress-bar" class="progress-bar"></div>
+            </div>
+            <div id="stl-progress-text" class="text-xs text-brushed-silver/50 mt-3">0%</div>
+          </div>
+
+        </div>
+        
+        <div class="p-4 border-t border-borders flex items-center justify-between text-sm">
+          <div class="text-brushed-silver/70">
+            Left-click + drag to rotate • Scroll to zoom • Right-click to pan
+          </div>
+          <button onclick="resetCamera()" 
+                  class="px-4 py-2 bg-deep-navy border border-borders rounded-lg hover:bg-electric-cyan hover:text-deep-navy transition-all">
+            Reset View
+          </button>
+        </div>
+      </div>
+
     </div>
   </section>
 
@@ -160,13 +295,133 @@
     </div>
   </footer>
 
-  <!-- Three.js STL Viewer Script -->
+  <!-- Tab switching -->
+  <script>
+    function switchTab(tab) {
+      document.getElementById('tab-360').classList.toggle('active', tab === '360');
+      document.getElementById('tab-stl').classList.toggle('active', tab === 'stl');
+      document.getElementById('panel-360').classList.toggle('active', tab === '360');
+      document.getElementById('panel-stl').classList.toggle('active', tab === 'stl');
+
+      if (tab === 'stl') {
+        window.dispatchEvent(new Event('resize'));
+      }
+    }
+  </script>
+
+  <!-- Vanilla 360° Photo View -->
+  <script>
+    (function () {
+      const TOTAL = 36;
+      const frames = [];
+      for (let i = 1; i <= TOTAL; i++) {
+        frames.push(`/frames/frame_${String(i).padStart(3, '0')}.png`);
+      }
+
+      const container = document.getElementById('photo360-container');
+      const img = document.getElementById('photo360-img');
+      const loadingEl = document.getElementById('photo360-loading');
+      const playBtn = document.getElementById('photo360-play');
+      const stopBtn = document.getElementById('photo360-stop');
+
+      let current = 0;
+      let isDragging = false;
+      let startX = 0;
+      let autoplayId = null;
+      let loadedCount = 0;
+
+      // Preload all frames
+      frames.forEach((src, index) => {
+        const preload = new Image();
+        preload.src = src;
+        preload.onload = () => {
+          loadedCount++;
+          if (loadedCount === TOTAL) {
+            loadingEl.style.display = 'none';
+            img.src = frames[0];
+            startAutoplay();
+          }
+        };
+        preload.onerror = () => {
+          console.error('Failed to load:', src);
+        };
+      });
+
+      function showFrame(index) {
+        current = ((index % TOTAL) + TOTAL) % TOTAL;
+        img.src = frames[current];
+      }
+
+      function startAutoplay() {
+        stopAutoplay();
+        autoplayId = setInterval(() => {
+          showFrame(current + 1);
+        }, 80);
+      }
+
+      function stopAutoplay() {
+        if (autoplayId) {
+          clearInterval(autoplayId);
+          autoplayId = null;
+        }
+      }
+
+      // Mouse / touch drag
+      container.addEventListener('mousedown', (e) => {
+        isDragging = true;
+        startX = e.clientX;
+        stopAutoplay();
+      });
+
+      window.addEventListener('mouseup', () => {
+        isDragging = false;
+      });
+
+      window.addEventListener('mousemove', (e) => {
+        if (!isDragging) return;
+        const delta = e.clientX - startX;
+        if (Math.abs(delta) > 8) {
+          showFrame(current + (delta > 0 ? -1 : 1));
+          startX = e.clientX;
+        }
+      });
+
+      // Touch support
+      container.addEventListener('touchstart', (e) => {
+        isDragging = true;
+        startX = e.touches[0].clientX;
+        stopAutoplay();
+      }, { passive: true });
+
+      window.addEventListener('touchend', () => {
+        isDragging = false;
+      });
+
+      window.addEventListener('touchmove', (e) => {
+        if (!isDragging) return;
+        const delta = e.touches[0].clientX - startX;
+        if (Math.abs(delta) > 8) {
+          showFrame(current + (delta > 0 ? -1 : 1));
+          startX = e.touches[0].clientX;
+        }
+      }, { passive: true });
+
+      // Buttons
+      playBtn.addEventListener('click', startAutoplay);
+      stopBtn.addEventListener('click', stopAutoplay);
+    })();
+  </script>
+
+  <!-- Three.js STL Viewer with Progress -->
   <script type="module">
     import * as THREE from 'three';
     import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
     import { STLLoader } from 'three/examples/jsm/loaders/STLLoader.js';
 
     const container = document.getElementById('stl-container');
+    const loadingEl = document.getElementById('stl-loading');
+    const progressBar = document.getElementById('stl-progress-bar');
+    const progressText = document.getElementById('stl-progress-text');
 
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0x0A1428);
@@ -191,29 +446,51 @@
     controls.enableDamping = true;
     controls.dampingFactor = 0.1;
 
-    // Load STL
+    // Load STL with progress
     const loader = new STLLoader();
-    loader.load('/models/x99-chassis.stl', function (geometry) {
-      const material = new THREE.MeshPhongMaterial({ 
-        color: 0xE5E7EB, 
-        shininess: 25,
-        flatShading: false
-      });
+    
+    loader.load(
+      '/models/x99-chassis.stl',
       
-      const mesh = new THREE.Mesh(geometry, material);
-      geometry.center();
-      scene.add(mesh);
+      function (geometry) {
+        const material = new THREE.MeshPhongMaterial({ 
+          color: 0xE5E7EB, 
+          shininess: 25,
+          flatShading: false
+        });
+        
+        const mesh = new THREE.Mesh(geometry, material);
+        geometry.center();
+        scene.add(mesh);
 
-      // Auto position camera
-      const box = new THREE.Box3().setFromObject(mesh);
-      const size = box.getSize(new THREE.Vector3());
-      const center = box.getCenter(new THREE.Vector3());
+        const box = new THREE.Box3().setFromObject(mesh);
+        const size = box.getSize(new THREE.Vector3());
+        const center = box.getCenter(new THREE.Vector3());
 
-      camera.position.copy(center);
-      camera.position.z += size.length() * 1.4;
-      controls.target.copy(center);
-      controls.update();
-    });
+        camera.position.copy(center);
+        camera.position.z += size.length() * 1.4;
+        controls.target.copy(center);
+        controls.update();
+
+        loadingEl.classList.add('hidden');
+      },
+      
+      function (event) {
+        if (event.lengthComputable) {
+          const percent = Math.round((event.loaded / event.total) * 100);
+          progressBar.style.width = percent + '%';
+          progressText.textContent = percent + '%';
+        } else {
+          progressText.textContent = 'Loading…';
+        }
+      },
+      
+      function (error) {
+        console.error('Error loading STL:', error);
+        progressText.textContent = 'Failed to load model';
+        progressBar.style.background = '#ef4444';
+      }
+    );
 
     function animate() {
       requestAnimationFrame(animate);
@@ -222,14 +499,13 @@
     }
     animate();
 
-    // Resize handler
     window.addEventListener('resize', () => {
+      if (container.clientWidth === 0) return;
       camera.aspect = container.clientWidth / container.clientHeight;
       camera.updateProjectionMatrix();
       renderer.setSize(container.clientWidth, container.clientHeight);
     });
 
-    // Reset camera function
     window.resetCamera = function () {
       const meshes = scene.children.filter(c => c.type === 'Mesh');
       if (meshes.length > 0) {
