@@ -112,9 +112,16 @@
       padding: 8px 14px; border-radius: 8px; font-size: 0.8rem; cursor: pointer;
       transition: all 0.2s ease;
     }
-    .vehicle-select-btn:hover { border-color: var(--cyan); color: var(--cyan); }
+    .vehicle-select-btn:hover:not(:disabled) { border-color: var(--cyan); color: var(--cyan); }
     .vehicle-select-btn.active {
       border-color: var(--cyan); color: var(--cyan); background: rgba(0, 180, 216, 0.08);
+    }
+    .vehicle-select-btn:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+      color: var(--muted);
+      border-color: var(--borders);
+      background: transparent;
     }
 
     .mode-row {
@@ -237,7 +244,7 @@
       <img src="/images/logo.png" alt="x99design">
       x99design
     </div>
-    <h1>Under Construction<br><span class="accent">&amp; coming very soon</span></h1>
+    <h1>Under Construction<br><span class="accent">& coming very soon</span></h1>
     <p class="site-tagline">
       Showcasing original RC designs alongside custom builds:<br>
       Rock crawlers, rock bouncers, rock racers, short course trucks, buggies, 1/10 and 1/24 scale
@@ -266,8 +273,8 @@
       </div>
 
       <div class="vehicle-select-row" id="vehicle-selector">
-        <button class="vehicle-select-btn" data-id="rattlehead-mkii">Rattlehead Mk II</button>
-        <button class="vehicle-select-btn" data-id="rattlehead">Rattlehead</button>
+        <button class="vehicle-select-btn" data-id="rattlehead" disabled title="Coming soon">Rattlehead</button>
+        <button class="vehicle-select-btn" data-id="rattlehead-mkii" disabled title="Coming soon">Rattlehead Mk II</button>
         <button class="vehicle-select-btn active" data-id="project-2">Project 2</button>
       </div>
 
@@ -323,24 +330,12 @@
 
   <script>
     const vehicles = {
-      "rattlehead-mkii": {
-        name: "Rattlehead Mk II",
-        subtitle: "Hybrid Tube Chassis • 360 mm",
-        physicalVideo: "https://assets.x99design.com/VIDEO/x99_FJC.mp4",
-        digitalVideo: "",
-        specs: [
-          { label: "Wheelbase", value: "360 mm" },
-          { label: "Track Width", value: "276 mm" },
-          { label: "Ground Clearance", value: "76 mm" },
-          { label: "Construction", value: "Hybrid", sub: "Al / CF tubes + 3D-printed nodes" }
-        ],
-        notes: `<p>X-bracing is both structural and visual. Front, rear and roof cages use the signature intersecting tube geometry that defines the x99design language.</p><p>The Mk II evolves the original Rattlehead platform with refined bulkheads, improved suspension geometry, and tighter packaging for electronics.</p>`
-      },
       "rattlehead": {
         name: "Rattlehead",
         subtitle: "Original Hybrid Chassis",
         physicalVideo: "",
         digitalVideo: "",
+        enabled: false,
         specs: [
           { label: "Wheelbase", value: "— mm" },
           { label: "Track Width", value: "— mm" },
@@ -349,11 +344,26 @@
         ],
         notes: `<p>The original Rattlehead established the core X-bracing language and hybrid construction approach.</p><p>Physical and digital 360° videos coming soon.</p>`
       },
+      "rattlehead-mkii": {
+        name: "Rattlehead Mk II",
+        subtitle: "Hybrid Tube Chassis • 360 mm",
+        physicalVideo: "https://assets.x99design.com/VIDEO/x99_FJC.mp4",
+        digitalVideo: "",
+        enabled: false,
+        specs: [
+          { label: "Wheelbase", value: "360 mm" },
+          { label: "Track Width", value: "276 mm" },
+          { label: "Ground Clearance", value: "76 mm" },
+          { label: "Construction", value: "Hybrid", sub: "Al / CF tubes + 3D-printed nodes" }
+        ],
+        notes: `<p>X-bracing is both structural and visual. Front, rear and roof cages use the signature intersecting tube geometry that defines the x99design language.</p><p>The Mk II evolves the original Rattlehead platform with refined bulkheads, improved suspension geometry, and tighter packaging for electronics.</p>`
+      },
       "project-2": {
         name: "Project 2",
         subtitle: "Ultra4 4400–inspired Prototype",
         physicalVideo: "https://assets.x99design.com/VIDEO/x99_Project%202_proto_physical.mp4",
         digitalVideo: "https://assets.x99design.com/VIDEO/x99_Project%202_proto_digital.mp4",
+        enabled: true,
         specs: [
           { label: "Wheelbase", value: "370 mm" },
           { label: "Track Width", value: "295 mm" },
@@ -465,9 +475,9 @@
     }
 
     function setVehicle(id) {
-      if (!vehicles[id]) return;
-      currentVehicleId = id;
       const v = vehicles[id];
+      if (!v || v.enabled === false) return;
+      currentVehicleId = id;
       vehicleTitle.textContent = v.name;
       vehicleSubtitle.textContent = v.subtitle;
       document.querySelectorAll('.vehicle-select-btn').forEach(btn => {
@@ -480,7 +490,10 @@
       btn.addEventListener('click', () => setMode(btn.dataset.mode));
     });
     document.querySelectorAll('.vehicle-select-btn').forEach(btn => {
-      btn.addEventListener('click', () => setVehicle(btn.dataset.id));
+      btn.addEventListener('click', () => {
+        if (btn.disabled) return;
+        setVehicle(btn.dataset.id);
+      });
     });
 
     video.addEventListener('loadedmetadata', () => {
